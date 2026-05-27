@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>MAPA DE PROCESOS — Pluz Energía SGI</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh;color:#333}
@@ -27,11 +28,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh
 .sl-est .lbl-text{background:#FFF8E1;color:#F57F17;border:1px solid #F9A825}.sl-est::after{background:#F9A825}
 .sl-ope .lbl-text{background:#E3F2FD;color:#1565C0;border:1px solid #1565C0}.sl-ope::after{background:#1565C0}
 .sl-sop .lbl-text{background:#E8F5E9;color:#2E7D32;border:1px solid #2E7D32}.sl-sop::after{background:#2E7D32}
-.mp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:4px}
+.mp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:4px}
 .mp-card{background:white;border-radius:12px;padding:20px 20px 16px;cursor:pointer;border:1px solid #E0E7F0;border-left:5px solid #ccc;transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column}
 .mp-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
-.mp-name{font-size:14px;font-weight:700;color:#1B3A6B;margin-bottom:6px;line-height:1.3}
-.mp-desc{font-size:12px;color:#555;line-height:1.5;flex:1;margin-bottom:12px}
+.mp-icon-wrap{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:20px}
+.mp-name{font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:6px;line-height:1.3}
+.mp-desc{font-size:11px;color:#555;line-height:1.5;flex:1;margin-bottom:12px}
 .mp-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #F0F4F8}
 .mp-count{font-size:11px;color:#888;font-weight:500}
 .mp-arr{font-size:18px;color:#ccc}
@@ -106,7 +108,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh
   .main{padding:0!important;max-width:100%!important}
   #vista-mapa,#vista-macro{display:none!important}
   #vista-ficha{display:block!important}
-  .ficha-hdr{border-bottom:3px solid #1B3A6B!important}
   .sipoc-center{border:1px solid #ccc!important}
   .doc-section{border:1px solid #ccc!important;page-break-inside:avoid}
 }
@@ -124,7 +125,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh
 
 <div class="breadcrumb" id="breadcrumb"><span class="bc-current">Inicio</span></div>
 
-<!-- VISTA MAPA -->
 <div id="vista-mapa">
   <div class="hero">
     <div class="hero-content">
@@ -138,7 +138,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh
   </div>
 </div>
 
-<!-- VISTA MACRO -->
 <div id="vista-macro" class="hidden">
   <div class="hero" style="padding:28px 32px">
     <div class="hero-content">
@@ -158,7 +157,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh
   </div>
 </div>
 
-<!-- VISTA FICHA -->
 <div id="vista-ficha" class="hidden">
   <div class="main">
     <div class="panel">
@@ -237,67 +235,104 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbytWMoXrmRn5SV5PVmQ5RsOyxu6HuLoTl0wrwo1L4VPBGVmKMEdHKxCQN7LueChS7mf/exec";
 
+// ── ICONOS POR MACROPROCESO ─────────────────────────────────────────
+const ICONS = {
+  "Planeamiento Estratégico y Gobierno Corporativo": {icon:"fa-chess",bg:"#E8EAF6",color:"#3949AB"},
+  "Gestión de Riesgos":          {icon:"fa-shield-halved",bg:"#FCE4D6",color:"#BF360C"},
+  "Gestión de Sostenibilidad":   {icon:"fa-leaf",bg:"#E8F5E9",color:"#2E7D32"},
+  "Gestión Comercial":           {icon:"fa-handshake",bg:"#E3F2FD",color:"#1565C0"},
+  "Planificación y Desarrollo de la Red": {icon:"fa-diagram-project",bg:"#E3F2FD",color:"#1565C0"},
+  "Ingeniería":                  {icon:"fa-compass-drafting",bg:"#E3F2FD",color:"#1565C0"},
+  "Construcción":                {icon:"fa-helmet-safety",bg:"#E3F2FD",color:"#1565C0"},
+  "Mantenimiento":               {icon:"fa-wrench",bg:"#E3F2FD",color:"#1565C0"},
+  "Operación y Sistemas":        {icon:"fa-sliders",bg:"#E3F2FD",color:"#1565C0"},
+  "Medición, Balance y Recuperación de energía": {icon:"fa-bolt",bg:"#E3F2FD",color:"#1565C0"},
+  "Servicio al cliente":         {icon:"fa-users",bg:"#E3F2FD",color:"#1565C0"},
+  "Gestión y Control de Recursos Económicos": {icon:"fa-coins",bg:"#E8F5E9",color:"#2E7D32"},
+  "Aprovisionamiento y Logística":{icon:"fa-truck",bg:"#E8F5E9",color:"#2E7D32"},
+  "Gestión Humana, Bienestar y Cultura": {icon:"fa-people-group",bg:"#E8F5E9",color:"#2E7D32"},
+  "Seguridad, Medio Ambiente y Calidad": {icon:"fa-hard-hat",bg:"#E8F5E9",color:"#2E7D32"},
+  "Tecnología y Ciberseguridad": {icon:"fa-microchip",bg:"#E8F5E9",color:"#2E7D32"},
+  "Servicios Estratégicos":      {icon:"fa-gears",bg:"#E8F5E9",color:"#2E7D32"},
+  "Gestión de Comunicaciones e Imagen Corporativa": {icon:"fa-bullhorn",bg:"#E8F5E9",color:"#2E7D32"},
+  "Gestión Legal y Regulatoria": {icon:"fa-scale-balanced",bg:"#E8F5E9",color:"#2E7D32"},
+  "Gestión Transversal":         {icon:"fa-arrows-left-right",bg:"#F3E5F5",color:"#6A1B9A"},
+  "Mejora continua":             {icon:"fa-rotate",bg:"#F3E5F5",color:"#6A1B9A"},
+  "Seguimiento y control":       {icon:"fa-chart-line",bg:"#F3E5F5",color:"#6A1B9A"},
+  "Evaluación del desempeño":    {icon:"fa-star-half-stroke",bg:"#F3E5F5",color:"#6A1B9A"},
+  "Gestión Normativa y documental":{icon:"fa-file-contract",bg:"#F3E5F5",color:"#6A1B9A"},
+};
+
+function getIcon(mp) {
+  // Buscar coincidencia exacta primero
+  if(ICONS[mp]) return ICONS[mp];
+  // Buscar coincidencia parcial
+  const lower = mp.toLowerCase();
+  for(const [key, val] of Object.entries(ICONS)) {
+    if(lower.includes(key.toLowerCase().substring(0,8))) return val;
+  }
+  return {icon:"fa-circle-nodes", bg:"#E8EFF9", color:"#1B3A6B"};
+}
+
 const TIPO_CFG = {
-  est: {bl:"#F9A825", sl:"sl-est", badgeClass:"badge-est"},
-  ope: {bl:"#1565C0", sl:"sl-ope", badgeClass:"badge-op"},
-  sop: {bl:"#2E7D32", sl:"sl-sop", badgeClass:"badge-sop"},
+  est:{bl:"#F9A825",sl:"sl-est",badgeClass:"badge-est"},
+  ope:{bl:"#1565C0",sl:"sl-ope",badgeClass:"badge-op"},
+  sop:{bl:"#2E7D32",sl:"sl-sop",badgeClass:"badge-sop"},
 };
 
 function getTipo(tipo) {
-  const t = (tipo||"").toLowerCase();
+  const t=(tipo||"").toLowerCase();
   if(t.includes("estrat")) return "est";
   if(t.includes("operat")||t.includes("misional")) return "ope";
   return "sop";
 }
 
 function getTipoLabel(tipo) {
-  const t = getTipo(tipo);
+  const t=getTipo(tipo);
   return t==="est"?"PROCESOS ESTRATÉGICOS":t==="ope"?"PROCESOS OPERATIVOS / MISIONALES":"PROCESOS DE APOYO / SOPORTE";
 }
 
-let DB = {};
-let macroMap = {};
-let procesoMap = {};
+let DB={}, macroMap={}, procesoMap={};
 
-// ── NAVEGACIÓN ─────────────────────────
-function show(id) {
+function show(id){
   ['vista-mapa','vista-macro','vista-ficha'].forEach(v=>document.getElementById(v).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
   window.scrollTo(0,0);
 }
 
-function updateBC(parts) {
-  let h = '<span class="bc-link" onclick="goMapa()">Inicio</span>';
+function updateBC(parts){
+  let h='<span class="bc-link" onclick="goMapa()">Inicio</span>';
   parts.forEach((p,i)=>{
-    h += '<span class="bc-sep">›</span>';
-    h += i<parts.length-1 ? `<span class="bc-link" onclick="${p.fn}">${p.label}</span>` : `<span class="bc-current">${p.label}</span>`;
+    h+='<span class="bc-sep">›</span>';
+    h+=i<parts.length-1?`<span class="bc-link" onclick="${p.fn}">${p.label}</span>`:`<span class="bc-current">${p.label}</span>`;
   });
-  document.getElementById('breadcrumb').innerHTML = h;
+  document.getElementById('breadcrumb').innerHTML=h;
 }
 
-function goMapa() {
+function goMapa(){
   show('vista-mapa');
   document.getElementById('breadcrumb').innerHTML='<span class="bc-current">Inicio</span>';
   renderMapa();
 }
 
-function goMacro(mpId) {
-  const procs = macroMap[mpId]||[];
+function goMacro(mpId){
+  const procs=macroMap[mpId]||[];
   if(!procs.length) return;
-  const tipo = procs[0]['Tipo de proceso']||'';
-  const c = TIPO_CFG[getTipo(tipo)];
+  const tipo=procs[0]['Tipo de proceso']||'';
+  const c=TIPO_CFG[getTipo(tipo)];
+  const ico=getIcon(mpId);
   show('vista-macro');
-  updateBC([{label:mpId, fn:`goMacro('${mpId.replace(/'/g,"\\'")}')`}]);
-  document.getElementById('macro-hero-title').textContent = mpId.toUpperCase();
-  document.getElementById('macro-hero-desc').textContent = `${procs.length} proceso${procs.length!==1?'s':''} · ${tipo}`;
-  document.getElementById('macro-title').textContent = mpId;
-  document.getElementById('macro-sub').textContent = `${procs.length} proceso${procs.length!==1?'s':''} · ${tipo}`;
-  let html = '';
+  updateBC([{label:mpId,fn:`goMacro('${mpId.replace(/'/g,"\\'")}')`}]);
+  document.getElementById('macro-hero-title').textContent=mpId.toUpperCase();
+  document.getElementById('macro-hero-desc').textContent=`${procs.length} proceso${procs.length!==1?'s':''} · ${tipo}`;
+  document.getElementById('macro-title').textContent=mpId;
+  document.getElementById('macro-sub').textContent=`${procs.length} proceso${procs.length!==1?'s':''} · ${tipo}`;
+  let html='';
   procs.forEach(p=>{
-    const cod = String(p['Código proceso']||'').trim();
-    const nom = p['Nombre del proceso']||'';
-    const obj = p['Objetivo del proceso']||'';
-    html += `<div class="proc-card" style="border-left-color:${c.bl}" onclick="goFicha('${cod}')">
+    const cod=String(p['Código proceso']||'').trim();
+    const nom=p['Nombre del proceso']||'';
+    const obj=p['Objetivo del proceso']||'';
+    html+=`<div class="proc-card" style="border-left-color:${c.bl}" onclick="goFicha('${cod}')">
       <div style="flex:1">
         <span class="proc-cod">${cod}</span>
         <div class="proc-name">${nom}</div>
@@ -306,80 +341,80 @@ function goMacro(mpId) {
       <div class="proc-arr">›</div>
     </div>`;
   });
-  document.getElementById('proc-list').innerHTML = html || '<div class="empty-box">Sin procesos.</div>';
+  document.getElementById('proc-list').innerHTML=html||'<div class="empty-box">Sin procesos.</div>';
 }
 
-function goFicha(cod) {
-  const p = procesoMap[cod];
+function goFicha(cod){
+  const p=procesoMap[cod];
   if(!p) return;
-  const mp = p['Macroproceso / Área']||'';
-  const tipo = p['Tipo de proceso']||'';
-  const tc = getTipo(tipo);
-  const c = TIPO_CFG[tc];
+  const mp=p['Macroproceso / Área']||'';
+  const tipo=p['Tipo de proceso']||'';
+  const tc=getTipo(tipo);
+  const c=TIPO_CFG[tc];
   show('vista-ficha');
   updateBC([
-    {label:mp, fn:`goMacro('${mp.replace(/'/g,"\\'")}')`},
-    {label:p['Nombre del proceso']||cod, fn:`goFicha('${cod}')`}
+    {label:mp,fn:`goMacro('${mp.replace(/'/g,"\\'")}')`},
+    {label:p['Nombre del proceso']||cod,fn:`goFicha('${cod}')`}
   ]);
-  document.getElementById('ficha-back-btn').onclick = ()=>goMacro(mp);
-  document.getElementById('ficha-title').textContent = p['Nombre del proceso']||'';
-  document.getElementById('ficha-cod-badge').innerHTML = `<span style="background:#1B3A6B;color:white;padding:2px 10px;border-radius:5px;font-size:10px;font-weight:700">${cod}</span>`;
-  document.getElementById('ficha-mp-label').textContent = mp;
-  const tipoBadge = document.getElementById('ficha-tipo-badge');
-  tipoBadge.textContent = tipo;
-  tipoBadge.className = `badge ${c.badgeClass}`;
-  document.getElementById('ficha-obj').textContent = p['Objetivo del proceso']||'Por completar';
-  document.getElementById('ficha-unidad').textContent = p['Unidad responsable']||'Por definir';
-  document.getElementById('ficha-cargo').textContent = p['Cargo responsable']||'Por definir';
-  document.getElementById('ficha-alcance').textContent = p['Alcance']||'—';
-  document.getElementById('ficha-responsable').textContent = `Responsable: ${p['Cargo responsable']||'Por definir'} · ${p['Unidad responsable']||''}`;
+  document.getElementById('ficha-back-btn').onclick=()=>goMacro(mp);
+  document.getElementById('ficha-title').textContent=p['Nombre del proceso']||'';
+  document.getElementById('ficha-cod-badge').innerHTML=`<span style="background:#1B3A6B;color:white;padding:2px 10px;border-radius:5px;font-size:10px;font-weight:700">${cod}</span>`;
+  document.getElementById('ficha-mp-label').textContent=mp;
+  const tb=document.getElementById('ficha-tipo-badge');
+  tb.textContent=tipo; tb.className=`badge ${c.badgeClass}`;
+  document.getElementById('ficha-obj').textContent=p['Objetivo del proceso']||'Por completar';
+  document.getElementById('ficha-unidad').textContent=p['Unidad responsable']||'Por definir';
+  document.getElementById('ficha-cargo').textContent=p['Cargo responsable']||'Por definir';
+  document.getElementById('ficha-alcance').textContent=p['Alcance']||'—';
+  document.getElementById('ficha-responsable').textContent=`Responsable: ${p['Cargo responsable']||'Por definir'} · ${p['Unidad responsable']||''}`;
 
-  // SIPOC
-  const sipocRows = (DB.sipoc||[]).filter(r=>String(r['Código proceso']||'').trim()===cod);
-  const uniq = arr => [...new Set(arr.filter(Boolean))];
-  const provs = uniq(sipocRows.map(r=>r['Proveedor del Proceso']));
-  const ents  = uniq(sipocRows.map(r=>r['Entrada']));
-  const acts  = uniq(sipocRows.map(r=>r['Actividad clave']));
-  const sals  = uniq(sipocRows.map(r=>r['Salida']));
-  const clis  = uniq(sipocRows.map(r=>r['Usuario del Proceso']));
+  const sipocRows=(DB.sipoc||[]).filter(r=>String(r['Código proceso']||'').trim()===cod);
+  const uniq=arr=>[...new Set(arr.filter(Boolean))];
+  const provs=uniq(sipocRows.map(r=>r['Proveedor del Proceso']));
+  const ents=uniq(sipocRows.map(r=>r['Entrada']));
+  const acts=uniq(sipocRows.map(r=>r['Actividad clave']));
+  const sals=uniq(sipocRows.map(r=>r['Salida']));
+  const clis=uniq(sipocRows.map(r=>r['Usuario del Proceso']));
+  const empty='<div class="empty-box" style="padding:8px;font-size:11px">Sin datos aún</div>';
+  document.getElementById('ficha-proveedores').innerHTML=provs.length?provs.map(x=>renderSIPOCItem(x,'prov')).join(''):empty;
+  document.getElementById('ficha-entradas').innerHTML=ents.length?ents.map(x=>`<div class="sipoc-item"><div class="s-dot" style="background:#1565C0"></div><div>${x}</div></div>`).join(''):empty;
+  document.getElementById('ficha-actividades').innerHTML=acts.length?acts.map((x,i)=>`<div class="sipoc-item"><div class="s-num">${i+1}</div><div>${x}</div></div>`).join(''):empty;
+  document.getElementById('ficha-salidas').innerHTML=sals.length?sals.map(x=>`<div class="sipoc-item"><div class="s-dot" style="background:#2E7D32"></div><div>${x}</div></div>`).join(''):empty;
+  document.getElementById('ficha-clientes').innerHTML=clis.length?clis.map(x=>renderSIPOCItem(x,'cli')).join(''):empty;
 
-  const empty = '<div class="empty-box" style="padding:8px;font-size:11px">Sin datos aún</div>';
-  document.getElementById('ficha-proveedores').innerHTML = provs.length ? provs.map(x=>renderSIPOCItem(x,'prov')).join('') : empty;
-  document.getElementById('ficha-entradas').innerHTML    = ents.length  ? ents.map(x=>`<div class="sipoc-item"><div class="s-dot" style="background:#1565C0"></div><div>${x}</div></div>`).join('') : empty;
-  document.getElementById('ficha-actividades').innerHTML = acts.length  ? acts.map((x,i)=>`<div class="sipoc-item"><div class="s-num">${i+1}</div><div>${x}</div></div>`).join('') : empty;
-  document.getElementById('ficha-salidas').innerHTML     = sals.length  ? sals.map(x=>`<div class="sipoc-item"><div class="s-dot" style="background:#2E7D32"></div><div>${x}</div></div>`).join('') : empty;
-  document.getElementById('ficha-clientes').innerHTML    = clis.length  ? clis.map(x=>renderSIPOCItem(x,'cli')).join('') : empty;
-
-  // KPIs
-  const kpis = (DB.indicadores||[]).filter(r=>String(r['Código proceso']||'').trim()===cod && r['Nombre del Indicador']);
-  if(kpis.length) {
+  const kpis=(DB.indicadores||[]).filter(r=>String(r['Código proceso']||'').trim()===cod&&(r['Nombre del indicador']||r['Nombre del Indicador']));
+  if(kpis.length){
     document.getElementById('ficha-kpis-sec').classList.remove('hidden');
-    document.getElementById('ficha-kpis').innerHTML = kpis.map(k=>`
-      <div class="kpi-card">
-        <div class="kpi-name">${k['Nombre del Indicador']||''}</div>
-        ${k['Fórmula de calcu']?`<div class="kpi-formula"><strong>Fórmula:</strong> ${k['Fórmula de calcu']}</div>`:''}
+    document.getElementById('ficha-kpis').innerHTML=kpis.map(k=>{
+      const nombre = k['Nombre del indicador']||k['Nombre del Indicador']||'';
+      const formula = k['Fórmula de cálculo']||k['Fórmula de calculo']||k['Fórmula de calcu']||'';
+      const meta = k['Meta']||'';
+      const freq = k['Frecuencia']||'';
+      const resp = k['Responsable seguimiento']||k['oncable seguim']||'';
+      return `<div class="kpi-card">
+        <div class="kpi-name">${nombre}</div>
+        ${formula?`<div class="kpi-formula"><strong>Fórmula:</strong> ${formula}</div>`:''}
         <div class="kpi-meta">
-          ${k['Meta']?`<span class="kpi-tag">Meta: ${k['Meta']}</span>`:''}
-          ${k['Frecuencia']?`<span class="kpi-tag">${k['Frecuencia']}</span>`:''}
-          ${k['oncable seguim']?`<span class="kpi-tag">${k['oncable seguim']}</span>`:''}
+          ${meta?`<span class="kpi-tag">Meta: ${meta}</span>`:''}
+          ${freq?`<span class="kpi-tag">${freq}</span>`:''}
+          ${resp?`<span class="kpi-tag">${resp}</span>`:''}
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   } else {
     document.getElementById('ficha-kpis-sec').classList.add('hidden');
   }
 
-  // Documentos
-  const docs = (DB.documentos||[]).filter(r=>String(r['Código proceso']||'').trim()===cod && r['Nombre del documento']);
-  document.getElementById('ficha-docs-count').textContent = `${docs.length} archivo${docs.length!==1?'s':''} vinculados`;
-  if(docs.length===0) {
-    document.getElementById('ficha-docs').innerHTML = '<div class="empty-box">Sin documentos registrados.</div>';
-  } else {
-    document.getElementById('ficha-docs').innerHTML = docs.map(d=>{
-      const url = d['URL en SharePoint']||'';
-      const tipo = d['Tipo de documento']||'';
-      const ico = tipo==='Procedimiento'?'PO':tipo==='Instructivo'?'IO':tipo==='Formato'?'FO':'DO';
-      const bg  = tipo==='Procedimiento'?'#FAECE7':tipo==='Instructivo'?'#E6F1FB':tipo==='Formato'?'#E8F5E9':'#F0F0F0';
-      const fc  = tipo==='Procedimiento'?'#712B13':tipo==='Instructivo'?'#0C447C':tipo==='Formato'?'#1B5E20':'#444';
+  const docs=(DB.documentos||[]).filter(r=>String(r['Código proceso']||'').trim()===cod&&r['Nombre del documento']);
+  document.getElementById('ficha-docs-count').textContent=`${docs.length} archivo${docs.length!==1?'s':''} vinculados`;
+  document.getElementById('ficha-docs').innerHTML=docs.length===0
+    ?'<div class="empty-box">Sin documentos registrados.</div>'
+    :docs.map(d=>{
+      const url=d['URL en SharePoint']||'';
+      const tipo=d['Tipo de documento']||'';
+      const ico=tipo==='Procedimiento'?'PO':tipo==='Instructivo'?'IO':tipo==='Formato'?'FO':'DO';
+      const bg=tipo==='Procedimiento'?'#FAECE7':tipo==='Instructivo'?'#E6F1FB':tipo==='Formato'?'#E8F5E9':'#F0F0F0';
+      const fc=tipo==='Procedimiento'?'#712B13':tipo==='Instructivo'?'#0C447C':tipo==='Formato'?'#1B5E20':'#444';
       return `<a class="doc-row" href="${url||'#'}" ${url?'target="_blank"':''}>
         <div class="doc-ico" style="background:${bg};color:${fc}">${ico}</div>
         <div style="flex:1;min-width:0">
@@ -389,21 +424,19 @@ function goFicha(cod) {
         <div class="doc-link">${url?'↗':'—'}</div>
       </a>`;
     }).join('');
-  }
 }
 
-// ── SIPOC LINKS ─────────────────────────
-function renderSIPOCItem(text, type) {
-  const lower = text.toLowerCase().trim();
-  let pid = null;
-  for(const [cod, p] of Object.entries(procesoMap)) {
-    const nom = (p['Nombre del proceso']||'').toLowerCase();
-    const uni = (p['Unidad responsable']||'').toLowerCase();
-    if(nom.length>3 && (lower===nom || lower.includes(nom) || nom.includes(lower))) { pid=cod; break; }
-    if(uni.length>5 && (lower===uni || lower.includes(uni.substring(0,12)))) { pid=cod; break; }
+function renderSIPOCItem(text,type){
+  const lower=text.toLowerCase().trim();
+  let pid=null;
+  for(const [cod,p] of Object.entries(procesoMap)){
+    const nom=(p['Nombre del proceso']||'').toLowerCase();
+    const uni=(p['Unidad responsable']||'').toLowerCase();
+    if(nom.length>3&&(lower===nom||lower.includes(nom)||nom.includes(lower))){pid=cod;break;}
+    if(uni.length>5&&(lower===uni||lower.includes(uni.substring(0,12)))){pid=cod;break;}
   }
-  const cls = type==='prov'?'prov-item':'cli-item';
-  if(pid) {
+  const cls=type==='prov'?'prov-item':'cli-item';
+  if(pid){
     return `<div class="sipoc-side-item ${cls} clickable" onclick="goFicha('${pid}')" title="→ ${procesoMap[pid]['Nombre del proceso']}">
       ${text}<span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:10px;opacity:.5">↗</span>
     </div>`;
@@ -411,26 +444,29 @@ function renderSIPOCItem(text, type) {
   return `<div class="sipoc-side-item ${cls}">${text}</div>`;
 }
 
-// ── RENDER MAPA ─────────────────────────
-function renderMapa() {
-  const tipoOrder = ['Estratégico','Operativo','Soporte'];
-  const tipoMap = {};
-  Object.entries(macroMap).forEach(([mp, procs])=>{
-    const tipo = procs[0]?.['Tipo de proceso']||'Soporte';
-    const key = tipoOrder.find(t=>tipo.toLowerCase().includes(t.toLowerCase()))||'Soporte';
+function renderMapa(){
+  const tipoOrder=['Estratégico','Operativo','Soporte'];
+  const tipoMap={};
+  Object.entries(macroMap).forEach(([mp,procs])=>{
+    const tipo=procs[0]?.['Tipo de proceso']||'Soporte';
+    const key=tipoOrder.find(t=>tipo.toLowerCase().includes(t.toLowerCase()))||'Soporte';
     if(!tipoMap[key]) tipoMap[key]=[];
-    tipoMap[key].push({nombre:mp, count:procs.length, tipo});
+    tipoMap[key].push({nombre:mp,count:procs.length,tipo});
   });
 
-  let html = '';
+  let html='';
   tipoOrder.forEach(tipo=>{
-    const grupo = tipoMap[tipo]||[];
+    const grupo=tipoMap[tipo]||[];
     if(!grupo.length) return;
-    const c = TIPO_CFG[getTipo(tipo)];
-    html += `<div class="section-lbl ${c.sl}"><span class="lbl-text">${getTipoLabel(tipo)}</span></div><div class="mp-grid">`;
+    const c=TIPO_CFG[getTipo(tipo)];
+    html+=`<div class="section-lbl ${c.sl}"><span class="lbl-text">${getTipoLabel(tipo)}</span></div><div class="mp-grid">`;
     grupo.forEach(mp=>{
-      const mpKey = mp.nombre.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-      html += `<div class="mp-card" style="border-left-color:${c.bl}" onclick="goMacro('${mpKey}')">
+      const ico=getIcon(mp.nombre);
+      const mpKey=mp.nombre.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+      html+=`<div class="mp-card" style="border-left-color:${c.bl}" onclick="goMacro('${mpKey}')">
+        <div class="mp-icon-wrap" style="background:${ico.bg};color:${ico.color}">
+          <i class="fa-solid ${ico.icon}"></i>
+        </div>
         <div class="mp-name">${mp.nombre}</div>
         <div class="mp-desc">${mp.tipo}</div>
         <div class="mp-footer">
@@ -439,41 +475,37 @@ function renderMapa() {
         </div>
       </div>`;
     });
-    html += '</div>';
+    html+='</div>';
   });
-  document.getElementById('mapa-content').innerHTML = html || '<div class="empty-box">No hay procesos.</div>';
+  document.getElementById('mapa-content').innerHTML=html||'<div class="empty-box">No hay procesos.</div>';
 }
 
-// ── PDF ─────────────────────────────────
-function descargarPDF() {
-  const t = document.getElementById('ficha-title').textContent;
-  const old = document.title;
-  document.title = 'Ficha_'+t.replace(/\s+/g,'_');
+function descargarPDF(){
+  const t=document.getElementById('ficha-title').textContent;
+  const old=document.title;
+  document.title='Ficha_'+t.replace(/\s+/g,'_');
   window.print();
-  document.title = old;
+  document.title=old;
 }
 
-// ── INIT ─────────────────────────────────
-async function init() {
-  try {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    DB = data;
-
+async function init(){
+  try{
+    const res=await fetch(API_URL);
+    const data=await res.json();
+    DB=data;
     (data.procesos||[]).forEach(p=>{
-      const cod = String(p['Código proceso']||'').trim();
-      const mp  = String(p['Macroproceso / Área']||'').trim();
+      const cod=String(p['Código proceso']||'').trim();
+      const mp=String(p['Macroproceso / Área']||'').trim();
       if(!cod) return;
-      procesoMap[cod] = p;
-      if(mp) {
+      procesoMap[cod]=p;
+      if(mp){
         if(!macroMap[mp]) macroMap[mp]=[];
         macroMap[mp].push(p);
       }
     });
-
     renderMapa();
-  } catch(e) {
-    document.getElementById('mapa-content').innerHTML = `
+  } catch(e){
+    document.getElementById('mapa-content').innerHTML=`
       <div style="padding:40px;text-align:center">
         <div style="font-size:32px;margin-bottom:12px">⚠️</div>
         <div style="font-weight:700;color:#c00;margin-bottom:8px">Error al cargar los datos</div>
