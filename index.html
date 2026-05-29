@@ -65,8 +65,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh
 .ficha-obj{background:#EEF4FF;border-left:5px solid #1B3A6B;padding:14px 20px;margin:6px 28px 16px;border-radius:0 10px 10px 0;font-size:13px;color:#1B3A6B;line-height:1.7;font-weight:500}
 .sec-inner{padding:0 28px;margin-bottom:18px}
 .sec-inner-lbl{font-size:10px;font-weight:800;color:#1B3A6B;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}.sec-inner-lbl::after{content:'';flex:1;height:1px;background:#E8EFF8}
-.sipoc-wrap{display:grid;grid-template-columns:155px 24px 1fr 24px 155px;gap:0;align-items:stretch}
-.sipoc-side{display:flex;flex-direction:column}
+.sipoc-wrap{display:grid;grid-template-columns:1fr 32px 1fr 32px 1fr;gap:0;align-items:stretch}
 .sipoc-side-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:6px}
 .sipoc-side-item{padding:8px 11px;border-radius:8px;font-size:11px;line-height:1.3;margin-bottom:5px;font-weight:700;transition:opacity .15s,transform .1s}
 .sipoc-side-item.clickable{cursor:pointer;position:relative;padding-right:22px}
@@ -74,13 +73,24 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh
 .prov-item{background:#E3F2FD;color:#0D47A1;border-left:3px solid #1565C0}
 .cli-item{background:#E8F5E9;color:#1B5E20;border-right:3px solid #2E7D32}
 .sipoc-arr{font-size:22px;color:#ccc;display:flex;align-items:center;justify-content:center}
-.sipoc-center{border:1px solid #E8EFF8;border-radius:12px;overflow:hidden}
-.sipoc-cols{display:grid;grid-template-columns:1fr 1fr 1fr;height:100%}
-.sipoc-col{padding:14px}.sipoc-col:not(:last-child){border-right:1px solid #F0F4F8}
+/* Bloque izquierdo: Proveedores + Entradas en 2 columnas */
+.sipoc-left{display:grid;grid-template-columns:1fr 1fr;border:1px solid #E8EFF8;border-radius:12px;overflow:hidden}
+.sipoc-left-col{padding:14px}
+.sipoc-left-col:first-child{border-right:1px solid #E8EFF8;background:white}
+/* Bloque central: solo Actividades */
+.sipoc-center{border:1px solid #E8EFF8;border-radius:12px;overflow:hidden;background:white}
+.sipoc-center-col{padding:14px}
+/* Bloque derecho: Salidas + Clientes en 2 columnas */
+.sipoc-right{display:grid;grid-template-columns:1fr 1fr;border:1px solid #E8EFF8;border-radius:12px;overflow:hidden}
+.sipoc-right-col{padding:14px}
+.sipoc-right-col:last-child{border-left:1px solid #E8EFF8;background:white}
 .sipoc-col-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#1B3A6B;margin-bottom:8px}
 .sipoc-item{display:flex;gap:7px;padding:5px 0;border-bottom:1px solid #F8F9FC;font-size:11px;color:#333;line-height:1.4;font-weight:600}.sipoc-item:last-child{border-bottom:none}
 .s-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
 .s-num{width:18px;height:18px;border-radius:50%;background:#1B3A6B;color:white;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* Chips para unidad/cargo múltiples */
+.chip-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#E8EFF9;color:#1B3A6B;border:1px solid #C5D5F0}
 .kpi-grid{display:flex;gap:10px;flex-wrap:wrap}
 .kpi-card{background:#F8FAFC;border:1px solid #E8EFF8;border-radius:10px;padding:12px 16px;flex:1;min-width:200px}
 .kpi-name{font-size:12px;font-weight:700;color:#1B3A6B;margin-bottom:6px}
@@ -182,7 +192,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh
       <div class="info-boxes">
         <div class="info-box"><div class="info-box-lbl">Unidad responsable</div><div class="info-box-val" id="ficha-unidad"></div></div>
         <div class="info-box"><div class="info-box-lbl">Cargo responsable</div><div class="info-box-val" id="ficha-cargo"></div></div>
-        <div class="info-box"><div class="info-box-lbl">Alcance</div><div class="info-box-val" id="ficha-alcance" style="font-size:11px;font-weight:400"></div></div>
+
       </div>
 
       <div class="obj-lbl">Objetivo del proceso</div>
@@ -191,22 +201,38 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#F5F7FA;min-height:100vh
       <div class="sec-inner">
         <div class="sec-inner-lbl">DIAGRAMA SIPOC</div>
         <div class="sipoc-wrap">
-          <div class="sipoc-side">
-            <div class="sipoc-side-lbl">Proveedores</div>
-            <div id="ficha-proveedores"></div>
-          </div>
-          <div class="sipoc-arr">→</div>
-          <div class="sipoc-center">
-            <div class="sipoc-cols">
-              <div class="sipoc-col"><div class="sipoc-col-lbl">Entradas</div><div id="ficha-entradas"></div></div>
-              <div class="sipoc-col"><div class="sipoc-col-lbl">Actividades clave</div><div id="ficha-actividades"></div></div>
-              <div class="sipoc-col"><div class="sipoc-col-lbl">Salidas</div><div id="ficha-salidas"></div></div>
+          <!-- IZQUIERDA: Proveedores + Entradas -->
+          <div class="sipoc-left">
+            <div class="sipoc-left-col">
+              <div class="sipoc-col-lbl">Proveedores</div>
+              <div id="ficha-proveedores"></div>
+            </div>
+            <div class="sipoc-left-col">
+              <div class="sipoc-col-lbl">Entradas</div>
+              <div id="ficha-entradas"></div>
             </div>
           </div>
+          <!-- FLECHA -->
           <div class="sipoc-arr">→</div>
-          <div class="sipoc-side">
-            <div class="sipoc-side-lbl">Clientes / Usuarios</div>
-            <div id="ficha-clientes"></div>
+          <!-- CENTRO: Actividades -->
+          <div class="sipoc-center">
+            <div class="sipoc-center-col">
+              <div class="sipoc-col-lbl">Actividades clave</div>
+              <div id="ficha-actividades"></div>
+            </div>
+          </div>
+          <!-- FLECHA -->
+          <div class="sipoc-arr">→</div>
+          <!-- DERECHA: Salidas + Clientes -->
+          <div class="sipoc-right">
+            <div class="sipoc-right-col">
+              <div class="sipoc-col-lbl">Salidas</div>
+              <div id="ficha-salidas"></div>
+            </div>
+            <div class="sipoc-right-col">
+              <div class="sipoc-col-lbl">Clientes / Usuarios</div>
+              <div id="ficha-clientes"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -363,21 +389,43 @@ function goFicha(cod){
   const tb=document.getElementById('ficha-tipo-badge');
   tb.textContent=tipo; tb.className=`badge ${c.badgeClass}`;
   document.getElementById('ficha-obj').textContent=p['Objetivo del proceso']||'Por completar';
-  document.getElementById('ficha-unidad').textContent=p['Unidad responsable']||'Por definir';
-  document.getElementById('ficha-cargo').textContent=p['Cargo responsable']||'Por definir';
-  document.getElementById('ficha-alcance').textContent=p['Alcance']||'—';
+  const renderChips = (val) => {
+    if(!val||val==='—') return '<span style="color:#aaa;font-style:italic;font-size:11px">Por definir</span>';
+    // Separar por comas, slashes, saltos de línea
+    const items = val.split(/[,/\n]+/).map(s=>s.trim()).filter(Boolean);
+    if(items.length<=1) return `<span style="font-weight:700;color:#1B3A6B;font-size:12px">${val}</span>`;
+    return `<div class="chip-wrap">${items.map(i=>`<span class="chip">${i}</span>`).join('')}</div>`;
+  };
+  document.getElementById('ficha-unidad').innerHTML=renderChips(p['Unidad responsable']);
+  document.getElementById('ficha-cargo').innerHTML=renderChips(p['Cargo responsable']);
+  
   document.getElementById('ficha-responsable').textContent=`Responsable: ${p['Cargo responsable']||'Por definir'} · ${p['Unidad responsable']||''}`;
 
   const sipocRows=(DB.sipoc||[]).filter(r=>String(r['Código proceso']||'').trim()===cod);
   const uniq=arr=>[...new Set(arr.filter(Boolean))];
-  const provs=uniq(sipocRows.map(r=>r['Proveedor del Proceso']));
-  const ents=uniq(sipocRows.map(r=>r['Entrada']));
+  const empty='<div class="empty-box" style="padding:8px;font-size:11px">Sin datos aún</div>';
+
+  // Proveedores y Entradas FILA A FILA — mantener relación
+  const filasPE = sipocRows.filter(r=>r['Proveedor del Proceso']||r['Entrada']);
+  let provHTML='', entHTML='';
+  if(filasPE.length) {
+    filasPE.forEach(r => {
+      const prov = r['Proveedor del Proceso']||'';
+      const ent  = r['Entrada']||'';
+      provHTML += prov ? renderSIPOCItem(prov,'prov') : '<div style="height:34px;margin-bottom:5px"></div>';
+      entHTML  += ent  ? `<div class="sipoc-item"><div class="s-dot" style="background:#1565C0"></div><div>${ent}</div></div>` : '<div style="height:28px"></div>';
+    });
+  } else {
+    provHTML = empty;
+    entHTML  = empty;
+  }
+  document.getElementById('ficha-proveedores').innerHTML = provHTML;
+  document.getElementById('ficha-entradas').innerHTML    = entHTML;
+
+  // Actividades, Salidas, Clientes — únicos
   const acts=uniq(sipocRows.map(r=>r['Actividad clave']));
   const sals=uniq(sipocRows.map(r=>r['Salida']));
   const clis=uniq(sipocRows.map(r=>r['Usuario del Proceso']));
-  const empty='<div class="empty-box" style="padding:8px;font-size:11px">Sin datos aún</div>';
-  document.getElementById('ficha-proveedores').innerHTML=provs.length?provs.map(x=>renderSIPOCItem(x,'prov')).join(''):empty;
-  document.getElementById('ficha-entradas').innerHTML=ents.length?ents.map(x=>`<div class="sipoc-item"><div class="s-dot" style="background:#1565C0"></div><div>${x}</div></div>`).join(''):empty;
   document.getElementById('ficha-actividades').innerHTML=acts.length?acts.map((x,i)=>`<div class="sipoc-item"><div class="s-num">${i+1}</div><div>${x}</div></div>`).join(''):empty;
   document.getElementById('ficha-salidas').innerHTML=sals.length?sals.map(x=>`<div class="sipoc-item"><div class="s-dot" style="background:#2E7D32"></div><div>${x}</div></div>`).join(''):empty;
   document.getElementById('ficha-clientes').innerHTML=clis.length?clis.map(x=>renderSIPOCItem(x,'cli')).join(''):empty;
